@@ -80,6 +80,7 @@ public class MainViewModel extends AndroidViewModel {
 
 
 
+
     private static class GetMovieTask extends AsyncTask<Integer,Void,Movie>{
         @Override
         protected Movie doInBackground(Integer... integers) {
