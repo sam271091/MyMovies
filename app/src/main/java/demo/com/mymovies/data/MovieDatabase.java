@@ -5,7 +5,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {Movie.class},version = 1,exportSchema = false)
+@Database(entities = {Movie.class,FavouriteMovie.class},version = 2,exportSchema = false)
 public abstract class MovieDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "movies.db";
@@ -16,7 +16,7 @@ public abstract class MovieDatabase extends RoomDatabase {
 
         synchronized (LOCK){
         if (database == null){
-            database = Room.databaseBuilder(context,MovieDatabase.class,DB_NAME).build();
+            database = Room.databaseBuilder(context,MovieDatabase.class,DB_NAME).fallbackToDestructiveMigration().build();
         }}
 
         return database;

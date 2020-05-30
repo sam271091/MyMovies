@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         movieAdapter = new MovieAdapter();
 
         JSONObject jsonObject = NetworkUtils.getJSONFromNetwork(NetworkUtils.POPULARITY,1);
-        ArrayList<Movie> movies = JSONUtils.getMoviesFromJSON(jsonObject);
+        final ArrayList<Movie> movies = JSONUtils.getMoviesFromJSON(jsonObject);
         movieAdapter.setMovies(movies);
         recyclerViewPosters.setAdapter(movieAdapter);
 
@@ -82,7 +83,11 @@ public class MainActivity extends AppCompatActivity {
         movieAdapter.setOnPosterClickListener(new MovieAdapter.OnPosterClickListener() {
             @Override
             public void onPosterClick(int position) {
-                Toast.makeText(MainActivity.this, "Clicked: " + position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "Clicked: " + position, Toast.LENGTH_SHORT).show();
+                Movie movie = movieAdapter.getMovies().get(position);
+                Intent intent = new Intent(MainActivity.this,DetailActivity.class);
+                intent.putExtra("id",movie.getId());
+                startActivity(intent);
             }
         });
 
