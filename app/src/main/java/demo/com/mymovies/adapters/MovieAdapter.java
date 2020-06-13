@@ -1,4 +1,4 @@
-package demo.com.mymovies;
+package demo.com.mymovies.adapters;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +12,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+import demo.com.mymovies.R;
 import demo.com.mymovies.data.Movie;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
@@ -24,7 +25,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         movies = new ArrayList<Movie>();
     }
 
-    interface OnPosterClickListener{
+    public interface OnPosterClickListener{
         void onPosterClick(int position);
     }
 
@@ -34,7 +35,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         this.onPosterClickListener = onPosterClickListener;
     }
 
-    interface OnReachEndListener{
+    public interface OnReachEndListener{
         void onReachEnd();
     }
 
