@@ -4,7 +4,10 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -20,6 +23,7 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +33,7 @@ import demo.com.mymovies.data.Movie;
 import demo.com.mymovies.utils.JSONUtils;
 import demo.com.mymovies.utils.NetworkUtils;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<JSONObject> {
 
     private RecyclerView recyclerViewPosters;
     private MovieAdapter movieAdapter;
@@ -37,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView textViewTop_Rated;
     private TextView textViewTop_Popularity;
     private MainViewModel viewModel;
+    private static final int LOADER_ID = 123;
+    private LoaderManager loaderManager;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -67,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        loaderManager = LoaderManager.getInstance(this);
+
 //        JSONObject jsonObject = NetworkUtils.getJSONFromNetwork(NetworkUtils.POPULARITY,5);
 //
 //
@@ -90,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewPosters.setLayoutManager(new GridLayoutManager(this,2));
         movieAdapter = new MovieAdapter();
 
-        JSONObject jsonObject = NetworkUtils.getJSONFromNetwork(NetworkUtils.POPULARITY,1);
-        final ArrayList<Movie> movies = JSONUtils.getMoviesFromJSON(jsonObject);
-        movieAdapter.setMovies(movies);
+//        JSONObject jsonObject = NetworkUtils.getJSONFromNetwork(NetworkUtils.POPULARITY,1);
+//        final ArrayList<Movie> movies = JSONUtils.getMoviesFromJSON(jsonObject);
+//        movieAdapter.setMovies(movies);
         recyclerViewPosters.setAdapter(movieAdapter);
 
         SwitchSort.setChecked(true);
@@ -162,7 +170,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void downloadData(int methodOfSort,int page){
 
-        JSONObject jsonObject = NetworkUtils.getJSONFromNetwork(methodOfSort,1);
+        URL url = NetworkUtils.buildURL(methodOfSort,page);
+        Bundle bundle = new Bundle();
+        bundle.putString("url",url.toString());
+        loaderManager.restartLoader(LOADER_ID,bundle,this);
+
+    }
+
+    @NonNull
+    @Override
+    public Loader<JSONObject> onCreateLoader(int i, @Nullable Bundle bundle) {
+        NetworkUtils.JSONLoader jsonLoader = new NetworkUtils.JSONLoader(this,bundle);
+
+        return jsonLoader;
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<JSONObject> loader, JSONObject jsonObject) {
+
         ArrayList<Movie> movies = JSONUtils.getMoviesFromJSON(jsonObject);
 
         if (movies != null && !movies.isEmpty()){
@@ -172,6 +197,12 @@ public class MainActivity extends AppCompatActivity {
                 viewModel.insertMovie(movie);
             }
         }
+
+        loaderManager.destroyLoader(LOADER_ID);
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<JSONObject> loader) {
 
     }
 }
