@@ -153,14 +153,31 @@ public class NetworkUtils {
 
        private Bundle bundle;
 
-        public JSONLoader(@NonNull Context context,Bundle bundle) {
+       private onStartLoadingListener onStartLoadingListener;
+
+
+       public interface onStartLoadingListener{
+
+           void onStartLoading();
+
+        }
+
+        public void setOnStartLoadingListener(JSONLoader.onStartLoadingListener onStartLoadingListener) {
+            this.onStartLoadingListener = onStartLoadingListener;
+        }
+
+        public JSONLoader(@NonNull Context context, Bundle bundle) {
             super(context);
             this.bundle = bundle;
         }
 
         @Override
         protected void onStartLoading() {
-            forceLoad();
+
+           if (onStartLoadingListener != null){
+               onStartLoadingListener.onStartLoading();
+           }
+           forceLoad();
         }
 
         @Nullable
