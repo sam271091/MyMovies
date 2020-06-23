@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import demo.com.mymovies.adapters.ReviewAdapter;
 import demo.com.mymovies.adapters.TrailerAdapter;
@@ -49,6 +51,9 @@ public class DetailActivity extends AppCompatActivity {
     private RecyclerView recyclerViewReviews;
     private ReviewAdapter reviewAdapter;
     private TrailerAdapter trailerAdapter;
+    private ScrollView scrollViewInfo;
+    private static String lang;
+    private static boolean isFavourite = false;
 
 
     @Override
@@ -81,6 +86,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        lang = Locale.getDefault().getLanguage();
 
         imageViewBigPoster = findViewById(R.id.imageViewBigPoster);
         textViewTitle = findViewById(R.id.textViewTitle);
@@ -89,16 +95,29 @@ public class DetailActivity extends AppCompatActivity {
         textViewReleaseDate = findViewById(R.id.textViewReleaseDate);
         textViewOverview = findViewById(R.id.textViewOverView);
 
+
+        scrollViewInfo = findViewById(R.id.scrollViewInfo);
+
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra("id")){
 
             id = intent.getIntExtra("id",-1);
+
+            if (intent.hasExtra("isFavourite")){
+                isFavourite = intent.getBooleanExtra("isFavourite",false);
+            }
+
         } else {
             finish();
         }
 
         viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        movie = viewModel.getMovieById(id);
+        if (isFavourite){
+            movie = viewModel.getFavouriteMovieById(id);
+        } else {
+            movie = viewModel.getMovieById(id);
+        }
+
         Picasso.get().load(movie.getBigPosterPath()).into(imageViewBigPoster);
         textViewTitle.setText(movie.getTitle());
         textViewOriginalTitle.setText(movie.getOriginalTitle());
@@ -130,14 +149,16 @@ public class DetailActivity extends AppCompatActivity {
         recyclerViewReviews.setAdapter(reviewAdapter);
         recyclerViewTrailers.setAdapter(trailerAdapter);
 
-        JSONObject jsonObjectTrailers = NetworkUtils.getJSONForVideos(movie.getId());
-        JSONObject jsonObjectReviews = NetworkUtils.getJSONForReviews(movie.getId());
+        JSONObject jsonObjectTrailers = NetworkUtils.getJSONForVideos(movie.getId(),lang);
+        JSONObject jsonObjectReviews = NetworkUtils.getJSONForReviews(movie.getId(),lang);
 
         ArrayList<Trailer> trailers = JSONUtils.getTrailersFromJSON(jsonObjectTrailers);
         ArrayList<Review> reviews = JSONUtils.getReviewsFromJSON(jsonObjectReviews);
 
         reviewAdapter.setReviews(reviews);
         trailerAdapter.setTrailers(trailers);
+
+        scrollViewInfo.smoothScrollTo(0,0);
     }
 
     public void onClickChangeFavourite(View view) {
