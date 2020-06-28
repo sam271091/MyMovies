@@ -8,4 +8,16 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="LabelStyle">
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:textColor">@color/orange_color</item>
+        <item name="android:textSize">@dimen/text_size_labels</item>
+    </style>
+
+    <style name="BorderStyle">
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:background">@color/lightGrey_color</item>
+    </style>
+
 </resources>
